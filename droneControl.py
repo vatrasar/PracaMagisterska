@@ -108,7 +108,7 @@ class DroneController():
 
     def move_to_point(self,target_point):
 
-        rospy.loginfo("random point (%f,%f,%f)"%(target_point[0],target_point[1],target_point[2]))
+        #rospy.loginfo("random point (%f,%f,%f)"%(target_point[0],target_point[1],target_point[2]))
         while get_distance(target_point,self.rosComunicator.drone_pos)>self.distance_tolerance_circle:
             rate=rospy.Rate(self.publication_rate)
             rate.sleep()
