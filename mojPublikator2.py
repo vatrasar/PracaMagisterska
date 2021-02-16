@@ -407,9 +407,9 @@ class DroneController():
 if __name__ == '__main__':
     try:
         dronecontroller=DroneController()
-        #dronecontroller.move_to_target()
+        dronecontroller.move_to_target()
         #dronecontroller.move_arround_target()
-        dronecontroller.circle_move_3d(1)
+        #dronecontroller.circle_move_3d(1)
 
        
     except rospy.ROSInterruptException:

@@ -61,7 +61,7 @@ class TFPublicatorNode():
                 #rospy.loginfo("reult:"+str(odom_to_current_translation_vector))
                 self.transform_broadcaster.sendTransform(odom_to_current_translation_vector,odom_to_current_rotation_quaterion,current_time,"base_link","odom")
                 #self.transform_broadcaster.sendTransform((0,0,0),(0,0,0,0),current_time,"laser","base_link")
-                self.transform_broadcaster.sendTransform(map_to_odom_translation_vector,map_to_odom_rotation_quaterion,current_time,"odom","map")
+                #self.transform_broadcaster.sendTransform(map_to_odom_translation_vector,map_to_odom_rotation_quaterion,current_time,"odom","map")
 
                 self.transform_broadcaster.sendTransform(sensor_to_base_link_pose,sensor_to_base_link_orientation,current_time,"sensor_link","base_link")
                 #rospy.loginfo("publikacja")
