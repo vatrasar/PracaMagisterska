@@ -7,6 +7,8 @@ import tf
 from tools import get_transform_between_points
 from tools import get_transform_between_orientations
 from tools import rotate_2d_vector
+from tfTools import get_orientation_from_pose
+from tfTools import get_transform_vector_from_pose
 import time
 class TFPublicatorNode():
     def __init__(self):
@@ -48,11 +50,11 @@ class TFPublicatorNode():
                 odom_to_current_translation_vector,odom_to_current_rotation_quaterion=self.get_odom_to_current_tf()
                 current_time=rospy.Time.now()
                 #rospy.loginfo("time:%s"%(current_time))
-                map_to_odom_translation_vector=self.get_transform_vector_from_pose(self.init_odom_pose)
-                map_to_odom_rotation_quaterion=self.get_orientation_from_pose(self.init_odom_pose)
+                map_to_odom_translation_vector=get_transform_vector_from_pose(self.init_odom_pose)
+                map_to_odom_rotation_quaterion=get_orientation_from_pose(self.init_odom_pose)
 
-                sensor_to_base_link_pose=self.get_transform_vector_from_pose(self.sensor_data)
-                sensor_to_base_link_orientation=self.get_orientation_from_pose(self.sensor_data)
+                sensor_to_base_link_pose=get_transform_vector_from_pose(self.sensor_data)
+                sensor_to_base_link_orientation=get_orientation_from_pose(self.sensor_data)
                 #orginal_translation_vector=self.get_transform_vector_from_pose(self.foot_print)
                 #orginal_rotation_quaterion=self.get_orientation_from_pose(self.foot_print)
                 #rospy.loginfo(odom_to_current_rotation_quaterion)
@@ -69,12 +71,7 @@ class TFPublicatorNode():
                 #rospy.loginfo("close")
         rospy.loginfo("close")
 
-    def get_transform_vector_from_pose(self,msg):
-        return (msg.position.x,msg.position.y,msg.position.z)
 
-
-    def get_orientation_from_pose(self,msg):
-        return (msg.orientation.x, msg.orientation.y,msg.orientation.z,msg.orientation.w)
 
 
     def get_odom_to_current_tf(self):

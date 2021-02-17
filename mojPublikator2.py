@@ -23,7 +23,7 @@ class DroneController():
   
         self.target_pos=[10,10,10]
         self.drone_pos=[-1,-1,-1]
-        self.distance_tolerance=0.01
+        self.distance_tolerance=0.1
         self.distance_tolerance_circle=0.3
         self.angle_tolerance=0.01
         self.subTargetPos=rospy.Subscriber("targetPosition",Point,self.get_target_position)
@@ -32,10 +32,10 @@ class DroneController():
         self.has_first_target_message=False
         self.theta=0
 
-        self.static_rotation_speed=0.5
+        self.static_rotation_speed=0.1
         self.plus_static_rotation_speed=self.static_rotation_speed
         self.minus_static_rotation_speed=-self.static_rotation_speed
-        self.drone_move_max_speed=0.2
+        self.drone_move_max_speed=0.025
         self.publication_rate=100
 
 
