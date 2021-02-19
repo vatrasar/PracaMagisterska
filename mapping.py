@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 import rospy
 import math
 from sensor_msgs.msg import LaserScan
@@ -9,9 +9,7 @@ from geometry_msgs.msg import Pose
 import matplotlib.pyplot as plt
 import numpy as np
 import time
-from tfTools import get_orientation_from_pose
-from tfTools import get_transform_vector_from_pose
-import tf
+
 from tools import rotate_2d_vector
 from tfTools import get_2d_point_moved_using_vector
 from tfTools import get_transform_vector_from_pose
@@ -25,7 +23,14 @@ class MappingNode():
         self.subDronePos=rospy.Subscriber("dronePosition",Point,self.get_drone_position)
         self.subOrientation=rospy.Subscriber("eulerInfo",Float64,self.get_drone_orientation)
         self.subLaser=rospy.Subscriber("coppeliaLaserInfo",LaserScan,self.get_laser_data)
-        
+        self.x_min=-5
+        self.x_max=5
+        self.y_min=-5
+        self.y_max=5
+        self.map_resolution=0.01
+        dimension_x=int((self.x_max-self.x_min)/self.map_resolution)
+        dimension_y=int((self.y_max-self.y_min)/self.map_resolution)
+        self.map_memmory=np.zeros((dimension_y,dimension_x))#first for x secound for y
         self.max_points=1024
         self.my_plot=None
         self.plot_fig=None
@@ -66,6 +71,14 @@ class MappingNode():
             x_array[i]=x
             y_array[i]=y
         return (x_array,y_array)
+
+
+    def get_point_on_map_index(self,x,y,x_min,y_min,resolution):
+
+        x_i = int(round((x - x_min) / resolution))
+        y_i= int(round((y - y_min) / resolution))
+        return (x_i,y_i)
+
     def get_drone_x_y_arrays(self,x_array):
         x=np.zeros(np.size(x_array))
         y=np.zeros(np.size(x_array))
@@ -89,15 +102,54 @@ class MappingNode():
         x_array,y_array=self.transfer_points(x_array,y_array,self.theta)
 
 
-
+        self.update_map_memory(x_array,y_array,self.map_resolution,self.x_min,self.y_min)
         if(time.time()-self.last_print_time>0.01):
-            self.show_rays(x_array,y_array)
+            #self.show_rays(x_array,y_array)
+        
+            self.show_map()
             self.last_print_time=time.time()
         #rospy.loginfo("nowe dane test %f"%(self.last_data_publication_time))
         
         #self.test()
         #rospy.loginfo("nowe dane %f"%(time.time()-self.last_data_publication_time))
 
+
+    def update_map_memory(self,x_array,y_array,map_resolution,x_min,y_min):
+        for i, x in enumerate(x_array):
+            x_i,y_i=self.get_point_on_map_index(x_array[i],y_array[i],x_min,y_min,map_resolution)
+            self.map_memmory[y_i][x_i]=1
+
+    def get_points_from_memory(self):
+        points_indexs=np.where(self.map_memmory==1)
+        x_index_array=points_indexs[1]
+        y_index_array=points_indexs[0]
+        x_array=x_index_array*self.map_resolution
+        x_array=x_array+self.x_min
+
+        y_array=y_index_array*self.map_resolution
+        y_array=y_array+self.y_min
+        return (x_array,y_array)
+
+
+    def show_map(self):
+        #plt.figure(figsize=(6,10))
+
+        x_array,y_arrray=self.get_points_from_memory()
+        if(self.is_first_datas):
+            plt.show()
+            plt.ion()
+            
+            self.is_first_datas=False
+
+        plt.plot(x_array,y_arrray, "s",markersize=1) # lines from 0,0 to the 
+
+        plt.ylim((-5,5))
+        plt.xlim((-5,5))
+  
+        plt.draw()
+        plt.pause(0.00000001)
+        plt.clf()
+        
  
 
     def show_rays(self,x_array,y_array):
@@ -118,11 +170,6 @@ class MappingNode():
         #bottom, top = plt.ylim()  # return the current ylim
         #plt.ylim((top, bottom)) # rescale y axis, to match the grid orientation
        # plt.grid(True)
-
-        
-
-        
-        
         plt.draw()
         plt.pause(0.00000001)
         plt.clf()
