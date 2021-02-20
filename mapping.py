@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 import rospy
 import math
 from sensor_msgs.msg import LaserScan
@@ -15,11 +14,13 @@ from tfTools import get_2d_point_moved_using_vector
 from tfTools import get_transform_vector_from_pose
 from geometry_msgs.msg import Point
 from std_msgs.msg import Float64
+import warnings
+
 
 
 class MappingNode():
     def __init__(self):
-        self.node=rospy.init_node("laserConversionNode",anonymous=True)
+        #self.node=rospy.init_node("laserConversionNode",anonymous=True)
         self.subDronePos=rospy.Subscriber("dronePosition",Point,self.get_drone_position)
         self.subOrientation=rospy.Subscriber("eulerInfo",Float64,self.get_drone_orientation)
         self.subLaser=rospy.Subscriber("coppeliaLaserInfo",LaserScan,self.get_laser_data)
@@ -27,13 +28,16 @@ class MappingNode():
         self.x_max=5
         self.y_min=-5
         self.y_max=5
-        self.map_resolution=0.01
+        self.map_resolution=0.05
         dimension_x=int((self.x_max-self.x_min)/self.map_resolution)
         dimension_y=int((self.y_max-self.y_min)/self.map_resolution)
         self.map_memmory=np.zeros((dimension_y,dimension_x))#first for x secound for y
         self.max_points=1024
         self.my_plot=None
         self.plot_fig=None
+        self.is_laser_data=False
+        self.is_drone_pos_data=False
+        self.is_euler_data=False
         self.is_first_datas=True
         self.drone_pos=None
         self.theta=None
@@ -41,18 +45,31 @@ class MappingNode():
         #fig = plt.figure()
         #self.ax = fig.add_subplot(1,1,1)
         rospy.loginfo("nowe dane test")
-        rospy.spin()
+        warnings.filterwarnings("ignore")
+        #rospy.spin()
 
+    def is_ready(self):
+        return self.is_laser_data and self.is_euler_data and self.is_drone_pos_data
+
+    def is_target_reachable(self,target_point):
+        x_i,y_i=self.get_point_on_map_index(target_point[0],target_point[1],self.x_min,self.y_min,self.map_resolution)
+        if(self.map_memmory[y_i][x_i]==1):
+            return False
+        else:
+            return True
 
 
     def get_drone_position(self,msg):
         
         self.drone_pos=[msg.x,msg.y,msg.z]
+        self.is_drone_pos_data=True
 
 
     def get_drone_orientation(self,msg):
        
         self.theta=msg.data
+        self.is_euler_data=True
+
 
 
 
@@ -90,7 +107,7 @@ class MappingNode():
         
         
 
-        
+        self.is_laser_data=True
         laser_data=msg.ranges
         #rospy.loginfo("liczby: %d"%(len(laser_data)))
         conuter=0
@@ -210,9 +227,9 @@ class MappingNode():
         y=np.array(y)
         return (x,y)
 
-if __name__ == "__main__":
+# if __name__ == "__main__":
 
-    newNode=MappingNode()    
+#     newNode=MappingNode()    
 
 # def create_map(laser_data,laser_step,laser_min):
 #     """

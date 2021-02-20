@@ -23,13 +23,13 @@ class DroneController():
 
     def __init__(self):
 
-        self.distance_tolerance=0.01
+        self.distance_tolerance=0.1
         self.distance_tolerance_circle=0.3
         self.angle_tolerance=0.01
-        self.static_rotation_speed=0.5
+        self.static_rotation_speed=0.1
         self.plus_static_rotation_speed=self.static_rotation_speed
         self.minus_static_rotation_speed=-self.static_rotation_speed
-        self.drone_move_max_speed=0.2
+        self.drone_move_max_speed=0.025
         self.publication_rate=100
         self.rosComunicator=RosDroneComunicator()
 
@@ -104,9 +104,10 @@ class DroneController():
 
     def has_first_target_message(self):
         return self.rosComunicator.has_first_target_message
+    
 
 
-    def move_to_point(self,target_point):
+    def move_to_point(self,target_point,is_one_step):
 
         #rospy.loginfo("random point (%f,%f,%f)"%(target_point[0],target_point[1],target_point[2]))
         while get_distance(target_point,self.rosComunicator.drone_pos)>self.distance_tolerance_circle:
@@ -118,3 +119,5 @@ class DroneController():
                 move_vector=get_vector_with_length_and_direction(min(get_distance(target_point,self.rosComunicator.drone_pos),self.drone_move_max_speed),direction_vector)
                 move_ros_pos=get_ros_point(move_vector)
                 self.rosComunicator.pub_move_vector.publish(move_ros_pos)
+                if(is_one_step):
+                    break
