@@ -44,6 +44,19 @@ def get_distance(source,position):
 
     return dist
 
+def get_2d_distance(source,position):
+    x_target,y_target=position
+    x_source,y_source=source
+    
+    p1 = np.array([x_target,y_target])
+    p2 = np.array([x_source,y_source])
+
+
+    squared_dist = np.sum((p1-p2)**2, axis=0)
+    dist = np.sqrt(squared_dist)
+
+    return dist
+
 def get_target_ros_pos(target_coordinates):
     point=Point()
     point.x=target_coordinates[0]
@@ -86,6 +99,14 @@ def get_angle_to_target(target_point,drone_pos):
     angle_target=convert_to_360(get_vector_angle(xy_vector))
     return angle_target
 
+
+def get_absolute_vector_to_target(current_position,target_position):
+    (x_current,y_current,z_current)=current_position
+    
+    (x_target,y_target,z_target)=target_position
+    
+    result=(x_target-x_current,y_target-y_current,z_target-z_current)
+    return result
 
 def get_absolute_vector_to_target(current_position,target_position):
     (x_current,y_current,z_current)=current_position

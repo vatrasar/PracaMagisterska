@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 import rospy
 from geometry_msgs.msg import Point
 from std_msgs.msg import Float64
@@ -17,6 +16,7 @@ class CircleMove():
 
     def __init__(self):
         self.droneController=DroneController()
+        self.current_point_on_circle_index=0
         myRandom=random.Random()
 
 
@@ -24,8 +24,8 @@ class CircleMove():
 
         points_on_circle_max_number=50
         #points_list=self.get_points_on_circle(radius,points_on_circle_max_number)
-        current_point_on_circle_index=0
-        rate=rospy.Rate(self.droneController.publication_rate)
+        
+        rate=rospy.Rate(100)
         i=0
         while True:
             if(self.droneController.has_first_target_message()):
@@ -138,12 +138,12 @@ class CircleMove():
 
 
 
-if __name__ == '__main__':
-    try:
-        circleMove=CircleMove()
+# if __name__ == '__main__':
+#     try:
+#         circleMove=CircleMove()
 
-        circleMove.circle_move_3d(1)
+#         circleMove.circle_move_3d(1)
 
        
-    except rospy.ROSInterruptException:
-        rospy.loginfo("node terminated.")
+#     except rospy.ROSInterruptException:
+#         rospy.loginfo("node terminated.")

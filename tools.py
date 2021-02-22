@@ -26,6 +26,9 @@ def get_transform_between_points(source,target):
     
     return transform
 
+def is_points_equal(point1,point2):
+    return point1[0]==point2[0] and point1[1]==point2[1]
+
 
 
 

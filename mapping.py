@@ -48,11 +48,14 @@ class MappingNode():
         warnings.filterwarnings("ignore")
         #rospy.spin()
 
+    def get_map_memmory(self):
+        return self.map_memmory
+
     def is_ready(self):
         return self.is_laser_data and self.is_euler_data and self.is_drone_pos_data
 
     def is_target_reachable(self,target_point):
-        x_i,y_i=self.get_point_on_map_index(target_point[0],target_point[1],self.x_min,self.y_min,self.map_resolution)
+        x_i,y_i=self.get_point_on_map_index(target_point[0],target_point[1])
         if(self.map_memmory[y_i][x_i]==1):
             return False
         else:
@@ -90,10 +93,11 @@ class MappingNode():
         return (x_array,y_array)
 
 
-    def get_point_on_map_index(self,x,y,x_min,y_min,resolution):
 
-        x_i = int(round((x - x_min) / resolution))
-        y_i= int(round((y - y_min) / resolution))
+    def get_point_on_map_index(self,x,y):
+
+        x_i = int(round((x - self.x_min) / self.map_resolution))
+        y_i= int(round((y - self.y_min) / self.map_resolution))
         return (x_i,y_i)
 
     def get_drone_x_y_arrays(self,x_array):
@@ -102,6 +106,7 @@ class MappingNode():
         y[:]=self.drone_pos[1]
         x[:]=self.drone_pos[0]
         return x,y
+    
         
     def get_laser_data(self,msg):
         
@@ -133,7 +138,7 @@ class MappingNode():
 
     def update_map_memory(self,x_array,y_array,map_resolution,x_min,y_min):
         for i, x in enumerate(x_array):
-            x_i,y_i=self.get_point_on_map_index(x_array[i],y_array[i],x_min,y_min,map_resolution)
+            x_i,y_i=self.get_point_on_map_index(x_array[i],y_array[i])
             self.map_memmory[y_i][x_i]=1
 
     def get_points_from_memory(self):
@@ -146,7 +151,13 @@ class MappingNode():
         y_array=y_index_array*self.map_resolution
         y_array=y_array+self.y_min
         return (x_array,y_array)
+    def convert_index_to_point(self,x_i,y_i):
+        x=x_i*self.map_resolution
+        x=x+self.x_min
 
+        y=y_i*self.map_resolution
+        y=y+self.y_min
+        return (x,y)
 
     def show_map(self):
         #plt.figure(figsize=(6,10))
