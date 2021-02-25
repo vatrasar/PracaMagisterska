@@ -3,13 +3,14 @@ from circleMove import CircleMove
 from moveToTarget import MoveToTarget
 from droneControl import DroneController
 import rospy
-from mapping import MappingNode
+from mapConnector import MappingConnector
 from geometry_msgs.msg import Point
 from tools2 import get_absolute_vector_to_target
 from tools2 import get_vector_with_length_and_direction
 from tools2 import get_distance
 from tools2 import get_2d_distance
 from tools2 import get_3d_point_moved_using_vector
+from tools import n_closest
 import time
 import numpy as np
 from tools import is_points_equal
@@ -31,7 +32,7 @@ class PathPlaner():
         #self.targetProvider=CircleMove()
         #self.circleMove.circle_move_3d(1)
         self.targetProvider=MoveToTarget()
-        self.map=MappingNode()
+        self.map=MappingConnector()
         self.i=0
         self.move_loop()
         
@@ -42,21 +43,33 @@ class PathPlaner():
         rate2=rospy.Rate(1)
         rate2.sleep()
         while(True):
-            if(self.targetProvider.isReady() and self.map.is_ready()):
+            if(self.targetProvider.isReady() and self.map.is_ready):
                 target_point=self.targetProvider.get_next_target()
                 
                 
                 if(self.map.is_target_reachable(target_point)):
                     if(self.is_straight_path_free_from_obstacles(target_point)):
+                        # rospy.loginfo("wyznaczono trase,step %d"%(1))
                         self.droneController.move_to_point(target_point,True)
                         
                     else:
-                        path=self.move_with_a_star(target_point)
+                        try:
+                            # rospy.loginfo("wyznaczono trase,step %d"%(2))
+                            path=self.move_with_a_star(target_point)
+                            step=int(self.droneController.distance_tolerance/self.map.map_resolution)+1
+                            step_point=(path[step][0],path[step][1],target_point[2])
+                        except IndexError:
+                            # rospy.loginfo("wyznaczono trase,step %d"%(3))
+                            step_point=self.get_free_point_near_drone()
+                            
+                            #rospy.loginfo("%f %f"%(step_point[0],step_point[1]))
+                            step_point=(step_point[0],step_point[1],target_point[2])
+                            
                         
-                        step=int(self.droneController.distance_tolerance/self.map.map_resolution)*10+1
                         
-                        self.droneController.move_to_point((path[step][0],path[step][1],target_point[2]),True)
-                        #rospy.loginfo("wyznaczono trase,step %d"%(step))
+                        # rospy.loginfo("wyznaczono trase,step %d"%(5))
+                        self.droneController.move_to_point(step_point,False)
+                       
 
                     
                     
@@ -74,6 +87,28 @@ class PathPlaner():
     #     rospy.loginfo(target_point)
     #     move_vector=get_vector_with_length_and_direction(min(get_distance(target_point,self.droneController.rosComunicator.drone_pos),self.droneController.drone_move_max_speed),direction_vector)
     #     return move_vector      
+    def get_free_point_near_drone(self):
+        current_pose=self.droneController.rosComunicator.drone_pos
+        start_pose=self.map.get_point_on_map_index(current_pose[0],current_pose[1])
+        d=1
+        
+        while(True):
+            closest=n_closest(self.map.get_map_memmory(),start_pose,d)
+            if(closest[closest==0].size!=0):
+                closest[closest==0]=5
+                points_indexs=np.where(self.map.get_map_memmory()==5)
+                closest[closest==0]=0
+                x_index_array=points_indexs[1]
+                y_index_array=points_indexs[0]
+                #rospy.loginfo("wyznaczono trase,step %d"%(d))
+                for i,x in enumerate(x_index_array):
+                    point=self.map.convert_index_to_point(x_index_array[i],y_index_array[i])
+                    if(self.is_straight_path_free_from_obstacles((point[0],point[1],0))):
+                        return point
+
+            else:
+                d=d+1
+
 
     def is_straight_path_free_from_obstacles(self,target):
         source=self.droneController.rosComunicator.drone_pos
@@ -211,7 +246,7 @@ class PathPlaner():
 
 
     def is_cell_avaiable(self,current_x_i,current_y_i,cell_state_map):
-        return cell_state_map[current_y_i][current_x_i]==0 and self.map.get_map_memmory()[current_y_i][current_x_i]!=1
+        return cell_state_map[current_y_i][current_x_i]==0 and self.map.get_map_memmory()[current_y_i][current_x_i]!=1 and self.map.get_map_memmory()[current_y_i][current_x_i]!=2
         
 
 
@@ -224,17 +259,3 @@ if __name__ == '__main__':
     except rospy.ROSInterruptException:
         rospy.loginfo("node terminated.")
 
-
-    
-    
-
-
-
-
-
-
-
-
-if __name__ == "__main__":
-
-    newNode=PathPlaner()  

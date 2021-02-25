@@ -137,3 +137,6 @@ def get_vector_with_length_and_direction(drone_move_max_speed,direction_vector):
     result_vector[1]=result_vector[1]*scale_factor
     result_vector[2]=result_vector[2]*scale_factor
     return result_vector
+
+
+

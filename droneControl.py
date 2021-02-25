@@ -110,7 +110,7 @@ class DroneController():
     def move_to_point(self,target_point,is_one_step):
 
 
-        while get_distance(target_point,self.rosComunicator.drone_pos)>self.distance_tolerance_circle:
+        while get_distance(target_point,self.rosComunicator.drone_pos)>self.distance_tolerance:
             rate=rospy.Rate(self.publication_rate)
             rate.sleep()
             is_target_angle_reached=self.rotation_control(target_point)

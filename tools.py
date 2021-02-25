@@ -28,6 +28,9 @@ def get_transform_between_points(source,target):
 
 def is_points_equal(point1,point2):
     return point1[0]==point2[0] and point1[1]==point2[1]
+    
+def n_closest(x,n,d=1):
+    return x[n[0]-d:n[0]+d+1,n[1]-d:n[1]+d+1]
 
 
 
