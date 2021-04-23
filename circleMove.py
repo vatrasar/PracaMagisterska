@@ -4,7 +4,6 @@ from std_msgs.msg import Float64
 from tools2 import get_2d_vector_from_polar
 from tools2 import get_3d_point_moved_using_vector
 from tools2 import get_3d_vector_from_polar
-import keyboard
 import time
 import numpy as np
 import math

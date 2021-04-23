@@ -12,7 +12,6 @@ from tools2 import get_vector_to_target
 from tools2 import get_absolute_vector_to_target
 from tools2 import get_vector_with_length_and_direction
 from tools2 import get_ros_point
-import keyboard
 import time
 import numpy as np
 import math
@@ -26,12 +25,14 @@ class DroneController():
         self.distance_tolerance=0.1
         self.distance_tolerance_circle=0.3
         self.angle_tolerance=0.01
-        self.static_rotation_speed=0.1
+        self.static_rotation_speed=0.05
         self.plus_static_rotation_speed=self.static_rotation_speed
         self.minus_static_rotation_speed=-self.static_rotation_speed
         self.drone_move_max_speed=0.025
         self.publication_rate=100
         self.rosComunicator=RosDroneComunicator()
+
+        
 
 
 

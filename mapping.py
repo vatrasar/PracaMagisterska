@@ -45,6 +45,7 @@ class MappingNode():
         self.is_first_datas=True
         self.drone_pos=None
         self.theta=None
+
         self.last_print_time=time.time()
         self.buffor_range=4
         #fig = plt.figure()
@@ -65,6 +66,8 @@ class MappingNode():
         
         self.drone_pos=[msg.x,msg.y,msg.z]
         self.is_drone_pos_data=True
+
+        
 
 
 
@@ -111,6 +114,7 @@ class MappingNode():
         
         self.counter=0
         self.is_laser_data=True
+
         
         
         laser_data=msg.ranges
@@ -123,9 +127,13 @@ class MappingNode():
         x_array,y_array=self.get_x_y(laser_data)
         x_array,y_array=self.transfer_points(x_array,y_array,self.theta)
 
-
-        self.update_map_memory(x_array,y_array,self.map_resolution,self.x_min,self.y_min)
-        if(time.time()-self.last_print_time>0.01):
+        
+        if(time.time()-self.last_print_time>0.1):
+            if(self.is_drone_pos_data and self.is_euler_data):
+                self.update_map_memory(x_array,y_array,self.map_resolution,self.x_min,self.y_min)
+                self.is_drone_pos_data=False
+                self.is_euler_data=False
+                
             #self.show_rays(x_array,y_array)
         
             self.show_map()
